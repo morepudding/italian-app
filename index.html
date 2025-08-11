@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prononciation Italien - App d'apprentissage</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png" type="image/png">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Application gratuite pour apprendre la prononciation italienne avec reconnaissance vocale">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .word-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .italian-word {
+            font-size: 2.5em;
+            margin: 20px 0;
+            color: #FFD700;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .french-translation {
+            font-size: 1.2em;
+            margin: 10px 0;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .speak-btn {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px 0 rgba(76, 175, 80, 0.3);
+        }
+
+        .speak-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(76, 175, 80, 0.4);
+        }
+
+        .mic-btn {
+            background: #2196F3;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px 0 rgba(33, 150, 243, 0.3);
+        }
+
+        .mic-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(33, 150, 243, 0.4);
+        }
+
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.success {
+            background-color: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .feedback.good {
+            background-color: rgba(255, 193, 7, 0.2);
+            border: 2px solid #FFC107;
+            color: #FFC107;
+        }
+
+        .feedback.retry {
+            background-color: rgba(244, 67, 54, 0.2);
+            border: 2px solid #f44336;
+            color: #f44336;
+        }
+
+        .feedback.listening {
+            background-color: rgba(33, 150, 243, 0.2);
+            border: 2px solid #2196F3;
+            color: #2196F3;
+            animation: pulse 1.5s infinite;
+        }
+
+        .feedback.error {
+            background-color: rgba(156, 39, 176, 0.2);
+            border: 2px solid #9C27B0;
+            color: #9C27B0;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .instructions {
+            margin-top: 20px;
+            font-size: 0.9em;
+            opacity: 0.8;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .instructions p {
+            margin: 8px 0;
+        }
+
+        .home-link {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .home-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .word-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .word-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .word-info {
+            flex-grow: 1;
+        }
+
+        .word-italian {
+            font-size: 1.3em;
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        .word-french {
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        .word-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .small-btn {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            border-radius: 15px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .listen-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .practice-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .small-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .voice-debug {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.8em;
+        }
+
+        .voice-debug h4 {
+            margin: 0 0 10px 0;
+            color: #FFD700;
+        }
+
+        .voice-list {
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.7em;
+            line-height: 1.3;
+        }
+
+        .voice-item {
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .voice-selected {
+            background: rgba(76, 175, 80, 0.2);
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .italian-word {
+                font-size: 2em;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .word-item {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🇮🇹 Prononciation Italien</h1>
+    <div id="word-container"></div>
+    
+    <script>
+        // Base de données des mots italiens
+        const words = {
+            'ciao': { french: 'Salut', category: 'salutations' },
+            'grazie': { french: 'Merci', category: 'politesse' },
+            'prego': { french: 'Je vous en prie', category: 'politesse' },
+            'buongiorno': { french: 'Bonjour', category: 'salutations' },
+            'buonasera': { french: 'Bonsoir', category: 'salutations' },
+            'arrivederci': { french: 'Au revoir', category: 'salutations' },
+            'scusi': { french: 'Excusez-moi', category: 'politesse' },
+            'mi chiamo': { french: 'Je m\'appelle', category: 'presentation' },
+            'dove': { french: 'Où', category: 'questions' },
+            'quanto costa': { french: 'Combien ça coûte', category: 'shopping' },
+            'bene': { french: 'Bien', category: 'expressions' },
+            'molto bene': { french: 'Très bien', category: 'expressions' },
+            'non capisco': { french: 'Je ne comprends pas', category: 'expressions' },
+            'parla italiano': { french: 'Parlez-vous italien', category: 'questions' },
+            'sì': { french: 'Oui', category: 'reponses' },
+            'no': { french: 'Non', category: 'reponses' },
+            'per favore': { french: 'S\'il vous plaît', category: 'politesse' },
+            'mi dispiace': { french: 'Je suis désolé', category: 'politesse' },
+            'acqua': { french: 'Eau', category: 'nourriture' },
+            'pane': { french: 'Pain', category: 'nourriture' },
+            // Nouveaux mots pour les exemples de prononciation
+            'cinema': { french: 'Cinéma', category: 'lieux' },
+            'chiesa': { french: 'Église', category: 'lieux' },
+            'famiglia': { french: 'Famille', category: 'famille' }
+        };
+
+        // Classe pour la reconnaissance vocale et vérification de prononciation
+        class PronunciationChecker {
+            constructor() {
+                this.recognition = null;
+                this.isListening = false;
+                this.targetWord = '';
+                this.setupSpeechRecognition();
+            }
+
+            setupSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    
+                    this.recognition.lang = 'it-IT'; // Italien
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = false;
+                    this.recognition.maxAlternatives = 3;
+                    
+                    this.recognition.onstart = () => {
+                        this.isListening = true;
+                        this.updateMicButton(true);
+                    };
+                    
+                    this.recognition.onend = () => {
+                        this.isListening = false;
+                        this.updateMicButton(false);
+                    };
+                    
+                    this.recognition.onresult = (event) => {
+                        const results = event.results[0];
+                        const spokenText = results[0].transcript.toLowerCase().trim();
+                        this.checkPronunciation(spokenText);
+                    };
+                    
+                    this.recognition.onerror = (event) => {
+                        console.error('Erreur reconnaissance vocale:', event.error);
+                        this.showFeedback('Erreur de reconnaissance vocale. Réessayez.', 'error');
+                        this.isListening = false;
+                        this.updateMicButton(false);
+                    };
+                }
+            }
+
+            startListening(targetWord) {
+                if (!this.recognition) {
+                    this.showFeedback('Reconnaissance vocale non supportée par votre navigateur', 'error');
+                    return;
+                }
+                
+                if (this.isListening) {
+                    this.recognition.stop();
+                    return;
+                }
+                
+                this.targetWord = targetWord.toLowerCase();
+                this.recognition.start();
+                this.showFeedback('🎤 Dites le mot en italien...', 'listening');
+            }
+
+            checkPronunciation(spokenText) {
+                const similarity = this.calculateSimilarity(spokenText, this.targetWord);
+                
+                if (similarity > 0.8) {
+                    this.showFeedback('🎉 Excellent ! Prononciation correcte', 'success');
+                } else if (similarity > 0.6) {
+                    this.showFeedback('👍 Bien ! Essayez encore pour parfaire', 'good');
+                } else {
+                    this.showFeedback(`❌ Essayez encore. Vous avez dit: "${spokenText}"`, 'retry');
+                }
+            }
+
+            calculateSimilarity(text1, text2) {
+                // Algorithme simple de similarité de Levenshtein normalisé
+                const distance = this.levenshteinDistance(text1, text2);
+                const maxLength = Math.max(text1.length, text2.length);
+                return maxLength === 0 ? 1 : 1 - (distance / maxLength);
+            }
+
+            levenshteinDistance(str1, str2) {
+                const matrix = [];
+                
+                for (let i = 0; i <= str2.length; i++) {
+                    matrix[i] = [i];
+                }
+                
+                for (let j = 0; j <= str1.length; j++) {
+                    matrix[0][j] = j;
+                }
+                
+                for (let i = 1; i <= str2.length; i++) {
+                    for (let j = 1; j <= str1.length; j++) {
+                        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                            matrix[i][j] = matrix[i - 1][j - 1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i - 1][j - 1] + 1,
+                                matrix[i][j - 1] + 1,
+                                matrix[i - 1][j] + 1
+                            );
+                        }
+                    }
+                }
+                
+                return matrix[str2.length][str1.length];
+            }
+
+            updateMicButton(isListening) {
+                const micBtn = document.getElementById('mic-btn');
+                if (micBtn) {
+                    micBtn.textContent = isListening ? '🛑 Arrêter' : '🎤 Répéter le mot';
+                    micBtn.style.backgroundColor = isListening ? '#f44336' : '#2196F3';
+                }
+            }
+
+            showFeedback(message, type) {
+                const feedbackEl = document.getElementById('feedback');
+                if (feedbackEl) {
+                    feedbackEl.textContent = message;
+                    feedbackEl.className = `feedback ${type}`;
+                    
+                    // Cacher le feedback après 3 secondes
+                    setTimeout(() => {
+                        if (feedbackEl.className.includes(type)) {
+                            feedbackEl.textContent = '';
+                            feedbackEl.className = 'feedback';
+                        }
+                    }, 3000);
+                }
+            }
+        }
+
+        // Instance globale du vérificateur
+        const pronunciationChecker = new PronunciationChecker();
+
+        // Fonction de synthèse vocale améliorée avec voix italienne native
+        function speakWord(text, lang = 'it-IT') {
+            if ('speechSynthesis' in window) {
+                // Arrêter toute synthèse en cours
+                speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang;
+                utterance.rate = 0.7; // Plus lent pour mieux entendre
+                utterance.pitch = 1;
+                
+                // Attendre que les voix soient chargées
+                function setVoice() {
+                    const voices = speechSynthesis.getVoices();
+                    console.log('Voix disponibles:', voices.map(v => `${v.name} (${v.lang})`));
+                    
+                    // Priorité aux voix italiennes natives (par ordre de préférence)
+                    const italianVoicePreferences = [
+                        // Voix italiennes Premium (Google, Microsoft, Apple)
+                        'Google italiano',
+                        'Microsoft Cosimo - Italian (Italy)',
+                        'Microsoft Elsa - Italian (Italy)', 
+                        'Luca',
+                        'Alice',
+                        'Federica',
+                        'Paolo',
+                        // Voix système italiennes
+                        'it-IT-Standard-A',
+                        'it-IT-Standard-B', 
+                        'it-IT-Standard-C',
+                        'it-IT-Standard-D',
+                        // Fallback sur toute voix italienne
+                        'Italian'
+                    ];
+                    
+                    let selectedVoice = null;
+                    
+                    // Recherche par priorité de noms exacts
+                    for (const preferredName of italianVoicePreferences) {
+                        selectedVoice = voices.find(voice => 
+                            voice.name.toLowerCase().includes(preferredName.toLowerCase())
+                        );
+                        if (selectedVoice) {
+                            console.log(`✅ Voix sélectionnée: ${selectedVoice.name} (${selectedVoice.lang})`);
+                            break;
+                        }
+                    }
+                    
+                    // Si aucune voix préférée, prendre la première voix italienne native
+                    if (!selectedVoice) {
+                        selectedVoice = voices.find(voice => 
+                            voice.lang.startsWith('it') && voice.localService
+                        );
+                        if (selectedVoice) {
+                            console.log(`🟡 Voix italienne locale: ${selectedVoice.name}`);
+                        }
+                    }
+                    
+                    // Dernière chance : n'importe quelle voix italienne
+                    if (!selectedVoice) {
+                        selectedVoice = voices.find(voice => voice.lang.startsWith('it'));
+                        if (selectedVoice) {
+                            console.log(`🟠 Voix italienne générique: ${selectedVoice.name}`);
+                        }
+                    }
+                    
+                    if (selectedVoice) {
+                        utterance.voice = selectedVoice;
+                    } else {
+                        console.warn('⚠️ Aucune voix italienne trouvée, utilisation de la voix par défaut');
+                    }
+                    
+                    speechSynthesis.speak(utterance);
+                }
+                
+                // Si les voix ne sont pas encore chargées, attendre
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
+                } else {
+                    setVoice();
+                }
+                
+            } else {
+                alert('Synthèse vocale non supportée par votre navigateur');
+            }
+        }
+
+        // Fonction pour déboguer les voix disponibles
+        function debugVoices() {
+            const voices = speechSynthesis.getVoices();
+            const debugDiv = document.getElementById('voice-debug');
+            
+            if (!debugDiv) return;
+            
+            let html = '<h4>🔊 Voix disponibles sur cet appareil :</h4><div class="voice-list">';
+            
+            if (voices.length === 0) {
+                html += '<div style="color: #ff6b6b;">Aucune voix détectée. Essayez de recharger la page.</div>';
+            } else {
+                // Grouper par langue
+                const italianVoices = voices.filter(v => v.lang.startsWith('it'));
+                const otherVoices = voices.filter(v => !v.lang.startsWith('it'));
+                
+                if (italianVoices.length > 0) {
+                    html += '<div style="color: #4CAF50; font-weight: bold;">🇮🇹 Voix italiennes :</div>';
+                    italianVoices.forEach(voice => {
+                        const isLocal = voice.localService ? '✅ Local' : '🌐 Cloud';
+                        const quality = voice.localService ? 'Offline' : 'Online';
+                        html += `<div class="voice-item">
+                            📢 ${voice.name}<br>
+                            &nbsp;&nbsp;&nbsp;${voice.lang} - ${isLocal} (${quality})
+                        </div>`;
+                    });
+                } else {
+                    html += '<div style="color: #ff6b6b;">❌ Aucune voix italienne détectée</div>';
+                }
+                
+                html += '<div style="margin-top: 10px; color: #999; font-weight: bold;">Autres voix :</div>';
+                otherVoices.slice(0, 5).forEach(voice => {
+                    html += `<div class="voice-item" style="opacity: 0.6;">
+                        ${voice.name} (${voice.lang})
+                    </div>`;
+                });
+                if (otherVoices.length > 5) {
+                    html += `<div style="opacity: 0.6;">... et ${otherVoices.length - 5} autres</div>`;
+                }
+            }
+            
+            html += '</div>';
+            html += '<p style="font-size: 0.7em; margin-top: 10px; opacity: 0.8;">💡 Pour de meilleures voix italiennes, installez les voix système de votre appareil ou utilisez Chrome/Edge.</p>';
+            
+            debugDiv.innerHTML = html;
+        }
+
+        // Fonction pour obtenir le mot depuis l'URL
+        function getWordFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('word');
+        }
+
+        // Fonction pour afficher un mot spécifique
+        function displayWord(wordKey) {
+            const container = document.getElementById('word-container');
+            
+            if (wordKey && words[wordKey]) {
+                const word = words[wordKey];
+                container.innerHTML = `
+                    <a href="index.html" class="home-link">← Retour à la liste</a>
+                    <div class="word-card">
+                        <div class="italian-word">${wordKey}</div>
+                        <div class="french-translation">${word.french}</div>
+                        
+                        <div class="button-group">
+                            <button class="speak-btn" onclick="speakWord('${wordKey}')">
+                                🔊 Écouter la prononciation
+                            </button>
+                            
+                            <button id="mic-btn" class="mic-btn" onclick="pronunciationChecker.startListening('${wordKey}')">
+                                🎤 Répéter le mot
+                            </button>
+                        </div>
+                        
+                        <div id="feedback" class="feedback"></div>
+                        
+                        <div class="instructions">
+                            <p>👂 1. Écoutez la prononciation</p>
+                            <p>🎤 2. Cliquez sur le micro et répétez</p>
+                            <p>✅ 3. Recevez votre score !</p>
+                            <p>🔗 4. Partagez ce mot : <br><code>${window.location.origin}${window.location.pathname}?word=${wordKey}</code></p>
+                        </div>
+                        
+                        <div class="voice-debug" id="voice-debug">
+                            <button onclick="debugVoices()" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+                                🔧 Vérifier les voix disponibles
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Afficher tous les mots si aucun spécifique n'est demandé
+                let html = '<div class="word-list">';
+                for (const [italian, data] of Object.entries(words)) {
+                    html += `
+                        <div class="word-item">
+                            <div class="word-info">
+                                <div class="word-italian">${italian}</div>
+                                <div class="word-french">${data.french}</div>
+                            </div>
+                            <div class="word-actions">
+                                <button class="small-btn listen-btn" onclick="speakWord('${italian}')">
+                                    🔊
+                                </button>
+                                <button class="small-btn practice-btn" onclick="window.location.href='?word=${italian}'">
+                                    🎤 Pratiquer
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+                
+                html += `
+                    <div class="word-card">
+                        <h2>Comment utiliser cette app ?</h2>
+                        <div class="instructions">
+                            <p>🎯 Cliquez sur "Pratiquer" pour un mot spécifique</p>
+                            <p>🔊 Utilisez le bouton écouter pour entendre la prononciation</p>
+                            <p>📱 Installez cette app sur votre téléphone (bouton partager > Ajouter à l'écran d'accueil)</p>
+                            <p>📖 Scannez les QR codes de votre cahier pour accéder directement aux mots</p>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            }
+        }
+
+        // Initialisation de l'application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Forcer le chargement des voix
+            if ('speechSynthesis' in window) {
+                speechSynthesis.getVoices();
+                speechSynthesis.addEventListener('voiceschanged', function() {
+                    console.log('✅ Voix chargées:', speechSynthesis.getVoices().length);
+                    const italianVoices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('it'));
+                    console.log('🇮🇹 Voix italiennes disponibles:', italianVoices.length);
+                });
+            }
+            
+            const targetWord = getWordFromURL();
+            displayWord(targetWord);
+        });
+
+        // Enregistrement du Service Worker pour PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker enregistré avec succès:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('Échec d\'enregistrement du ServiceWorker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

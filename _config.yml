@@ -1,0 +1,22 @@
+# Configuration GitHub Pages pour Application Italien
+
+# Activer GitHub Pages avec Jekyll
+plugins:
+  - jekyll-relative-links
+
+# Configuration de base
+title: "Application Prononciation Italien"
+description: "PWA pour apprendre la prononciation italienne avec QR codes"
+
+# Fichiers à inclure
+include:
+  - "*.html"
+  - "*.js"
+  - "*.json"
+  - "*.svg"
+  - ".github"
+
+# Support des liens relatifs
+relative_links:
+  enabled: true
+  collections: false
