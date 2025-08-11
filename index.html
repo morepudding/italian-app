@@ -729,7 +729,16 @@
             debugDiv.innerHTML = html;
         }
 
-        // Fonction pour obtenir le mot depuis l'URL
+        // Fonction pour obtenir les paramètres depuis l'URL
+        function getParamsFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                word: urlParams.get('word'),
+                lesson: urlParams.get('lesson')
+            };
+        }
+
+        // Fonction pour obtenir le mot depuis l'URL (compatibilité)
         function getWordFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('word');
@@ -920,23 +929,59 @@
                 });
             }
             
-            const targetWord = getWordFromURL();
-            if (targetWord) {
-                // Si un mot spécifique est demandé via URL, l'afficher
-                displayWord(targetWord);
+            const params = getParamsFromURL();
+            console.log('📱 Paramètres URL détectés:', params);
+            
+            // Gérer les paramètres URL
+            if (params.lesson) {
+                // Conversion des identifiants de leçon
+                let lessonId = params.lesson.toUpperCase();
+                if (lessonId === 'S1.1') lessonId = 'S1.1';
+                else if (lessonId === 'S1.2') lessonId = 'S1.2';
+                
+                if (lessons[lessonId]) {
+                    currentLesson = lessonId;
+                    
+                    // Si un mot spécifique est demandé
+                    if (params.word && lessons[lessonId].words[params.word]) {
+                        displayWord(params.word);
+                    } else {
+                        // Sinon, afficher le premier mot de la leçon
+                        const firstWord = Object.keys(lessons[lessonId].words)[0];
+                        displayWord(firstWord);
+                    }
+                    
+                    // Mettre à jour l'interface
+                    document.querySelectorAll('.lesson-btn').forEach(btn => btn.classList.remove('active'));
+                    const lessonBtn = document.querySelector(`[onclick*="${lessonId}"]`);
+                    if (lessonBtn) lessonBtn.classList.add('active');
+                    updateLessonInfo(lessonId);
+                } else {
+                    console.warn('⚠️ Leçon non trouvée:', params.lesson);
+                    // Comportement par défaut
+                    currentLesson = 'S1.1';
+                    const firstWord = Object.keys(lessons['S1.1'].words)[0];
+                    displayWord(firstWord);
+                    updateLessonInfo('S1.1');
+                }
+            } else if (params.word) {
+                // Si seulement un mot est spécifié (ancienne méthode)
+                displayWord(params.word);
                 // Trouver dans quelle leçon se trouve le mot
                 for (const [lessonId, lesson] of Object.entries(lessons)) {
-                    if (lesson.words[targetWord]) {
+                    if (lesson.words[params.word]) {
                         currentLesson = lessonId;
                         // Mettre à jour l'interface
                         document.querySelectorAll('.lesson-btn').forEach(btn => btn.classList.remove('active'));
-                        document.querySelector(`[onclick*="${lessonId}"]`).classList.add('active');
+                        const lessonBtn = document.querySelector(`[onclick*="${lessonId}"]`);
+                        if (lessonBtn) lessonBtn.classList.add('active');
                         updateLessonInfo(lessonId);
                         break;
                     }
                 }
             } else {
                 // Sinon, afficher le premier mot de S1.1 par défaut
+                currentLesson = 'S1.1';
                 const firstWord = Object.keys(lessons['S1.1'].words)[0];
                 displayWord(firstWord);
                 updateLessonInfo('S1.1');
