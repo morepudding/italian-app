@@ -51,6 +51,17 @@
             font-style: italic;
         }
 
+        .pronunciation {
+            font-size: 1.1em;
+            margin: 10px 0;
+            color: #FF9800;
+            font-weight: bold;
+            background: rgba(255, 152, 0, 0.1);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border-left: 4px solid #FF9800;
+        }
+
         .button-group {
             display: flex;
             gap: 10px;
@@ -282,40 +293,172 @@
                 text-align: center;
             }
         }
+
+        /* Styles pour la navigation par leçons */
+        .lesson-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .lesson-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .lesson-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .lesson-btn.active {
+            background: #4CAF50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .lesson-info {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .lesson-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .lesson-description {
+            color: #666;
+            font-style: italic;
+        }
+
+        .word-count {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        @media screen and (max-width: 600px) {
+            .lesson-selector {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
     <h1>🇮🇹 Prononciation Italien</h1>
+    
+    <!-- Navigation par leçons -->
+    <div class="lesson-selector">
+        <button class="lesson-btn active" onclick="switchLesson('S1.1')">S1.1 - Se présenter</button>
+        <button class="lesson-btn" onclick="switchLesson('S1.2')">S1.2 - Alphabet</button>
+        <button class="lesson-btn" onclick="switchLesson('ALL')">📚 Tous les mots</button>
+    </div>
+    
+    <!-- Informations sur la leçon courante -->
+    <div id="lesson-info" class="lesson-info">
+        <div class="lesson-title">S1.1 - Ciao! Se présenter</div>
+        <div class="lesson-description">Salutations et présentations</div>
+        <div class="word-count">20 mots à apprendre</div>
+    </div>
+    
     <div id="word-container"></div>
     
     <script>
-        // Base de données des mots italiens
-        const words = {
-            'ciao': { french: 'Salut', category: 'salutations' },
-            'grazie': { french: 'Merci', category: 'politesse' },
-            'prego': { french: 'Je vous en prie', category: 'politesse' },
-            'buongiorno': { french: 'Bonjour', category: 'salutations' },
-            'buonasera': { french: 'Bonsoir', category: 'salutations' },
-            'arrivederci': { french: 'Au revoir', category: 'salutations' },
-            'scusi': { french: 'Excusez-moi', category: 'politesse' },
-            'mi chiamo': { french: 'Je m\'appelle', category: 'presentation' },
-            'dove': { french: 'Où', category: 'questions' },
-            'quanto costa': { french: 'Combien ça coûte', category: 'shopping' },
-            'bene': { french: 'Bien', category: 'expressions' },
-            'molto bene': { french: 'Très bien', category: 'expressions' },
-            'non capisco': { french: 'Je ne comprends pas', category: 'expressions' },
-            'parla italiano': { french: 'Parlez-vous italien', category: 'questions' },
-            'sì': { french: 'Oui', category: 'reponses' },
-            'no': { french: 'Non', category: 'reponses' },
-            'per favore': { french: 'S\'il vous plaît', category: 'politesse' },
-            'mi dispiace': { french: 'Je suis désolé', category: 'politesse' },
-            'acqua': { french: 'Eau', category: 'nourriture' },
-            'pane': { french: 'Pain', category: 'nourriture' },
-            // Nouveaux mots pour les exemples de prononciation
-            'cinema': { french: 'Cinéma', category: 'lieux' },
-            'chiesa': { french: 'Église', category: 'lieux' },
-            'famiglia': { french: 'Famille', category: 'famille' }
+        // Organisation des mots par leçons du cahier de vacances
+        const lessons = {
+            'S1.1': {
+                title: 'Ciao! Se présenter',
+                description: 'Salutations et présentations',
+                words: {
+                    'ciao': { french: 'Salut (informel)', pronunciation: '[tchao]' },
+                    'buongiorno': { french: 'Bonjour', pronunciation: '[bwon-djor-no]' },
+                    'buonasera': { french: 'Bonsoir', pronunciation: '[bwona-sé-ra]' },
+                    'arrivederci': { french: 'Au revoir', pronunciation: '[arri-vé-der-tchi]' },
+                    'piacere': { french: 'Enchanté!', pronunciation: '[pia-tché-ré]' },
+                    'salve': { french: 'Bonjour (semi-formel)', pronunciation: '[sal-vé]' },
+                    'grazie': { french: 'Merci', pronunciation: '[gra-tsié]' },
+                    'per favore': { french: 'S\'il vous plaît', pronunciation: '[per favore]' },
+                    'scusa': { french: 'Excuse-moi (tu)', pronunciation: '[skouza]' },
+                    'scusi': { french: 'Excusez-moi (Lei)', pronunciation: '[skouzi]' },
+                    'mi chiamo': { french: 'Je m\'appelle', pronunciation: '[mi kiamo]' },
+                    'sono': { french: 'Je suis', pronunciation: '[so-no]' },
+                    'sono di': { french: 'Je suis de', pronunciation: '[so-no di]' },
+                    'abito a': { french: 'J\'habite à', pronunciation: '[a-bi-to a]' },
+                    'come ti chiami': { french: 'Comment tu t\'appelles?', pronunciation: '[komé ti tchiami]' },
+                    'come si chiama': { french: 'Comment vous vous appelez?', pronunciation: '[komé si kiama]' },
+                    'di dove sei': { french: 'D\'où viens-tu?', pronunciation: '[di dové sé-i]' },
+                    'non': { french: 'Non/Ne...pas', pronunciation: '[non]' },
+                    'sì': { french: 'Oui', pronunciation: '[si]' },
+                    'no': { french: 'Non', pronunciation: '[no]' }
+                }
+            },
+            'S1.2': {
+                title: 'Alphabet & sons utiles',
+                description: 'Épellation et articles indéfinis',
+                words: {
+                    'come si scrive': { french: 'Comment ça s\'écrit?', pronunciation: '[komé si skri-vé]' },
+                    'nome': { french: 'Prénom', pronunciation: '[no-mé]' },
+                    'cognome': { french: 'Nom de famille', pronunciation: '[ko-gno-mé]' },
+                    'città': { french: 'Ville', pronunciation: '[tchit-ta]' },
+                    'nazionalità': { french: 'Nationalité', pronunciation: '[na-tsio-na-li-ta]' },
+                    'email': { french: 'Email', pronunciation: '[i-mél]' },
+                    'marco': { french: 'Prénom Marco', pronunciation: '[mar-ko]' },
+                    'milano': { french: 'Milan', pronunciation: '[mi-la-no]' },
+                    'pizza': { french: 'Pizza', pronunciation: '[pit-tsa]' },
+                    'francesco': { french: 'Prénom Francesco', pronunciation: '[fran-tché-sko]' },
+                    'venezia': { french: 'Venise', pronunciation: '[vé-né-tsia]' },
+                    'cinema': { french: 'Cinéma', pronunciation: '[tchi-né-ma]' },
+                    'chiesa': { french: 'Église', pronunciation: '[kié-za]' },
+                    'famiglia': { french: 'Famille', pronunciation: '[fa-mi-lli-a]' },
+                    'un': { french: 'Un (masc. + consonne)', pronunciation: '[oun]' },
+                    'uno': { french: 'Un (masc. + z, s+cons.)', pronunciation: '[ou-no]' },
+                    'una': { french: 'Une (fém. + consonne)', pronunciation: '[ou-na]' },
+                    'libro': { french: 'Livre', pronunciation: '[li-bro]' },
+                    'casa': { french: 'Maison', pronunciation: '[ka-za]' },
+                    'zaino': { french: 'Sac à dos', pronunciation: '[dzaï-no]' },
+                    'studente': { french: 'Étudiant', pronunciation: '[stou-dèn-té]' }
+                }
+            }
         };
+
+        // Dictionnaire unifié pour la compatibilité (toutes les leçons combinées)
+        const words = {};
+        Object.values(lessons).forEach(lesson => {
+            Object.assign(words, lesson.words);
+        });
+
+        // Ajout des anciens mots pour compatibilité
+        Object.assign(words, {
+            'bene': { french: 'Bien', pronunciation: '[bé-né]' },
+            'molto bene': { french: 'Très bien', pronunciation: '[mol-to bé-né]' },
+            'non capisco': { french: 'Je ne comprends pas', pronunciation: '[non ka-pi-sko]' },
+            'dove': { french: 'Où', pronunciation: '[do-vé]' },
+            'quanto costa': { french: 'Combien ça coûte', pronunciation: '[kwan-to ko-sta]' },
+            'parla italiano': { french: 'Parlez-vous italien', pronunciation: '[par-la i-ta-lia-no]' },
+            'prego': { french: 'Je vous en prie', pronunciation: '[pré-go]' },
+            'mi dispiace': { french: 'Je suis désolé', pronunciation: '[mi di-spia-tché]' },
+            'acqua': { french: 'Eau', pronunciation: '[ak-kwa]' },
+            'pane': { french: 'Pain', pronunciation: '[pa-né]' }
+        });
 
         // Classe pour la reconnaissance vocale et vérification de prononciation
         class PronunciationChecker {
@@ -598,11 +741,27 @@
             
             if (wordKey && words[wordKey]) {
                 const word = words[wordKey];
+                const pronunciation = word.pronunciation || '';
+                
+                // Déterminer la leçon actuelle et la navigation
+                let currentWordsList = [];
+                let currentIndex = 0;
+                
+                if (currentLesson === 'ALL') {
+                    currentWordsList = Object.keys(words);
+                } else {
+                    currentWordsList = Object.keys(lessons[currentLesson].words);
+                }
+                
+                currentIndex = currentWordsList.indexOf(wordKey);
+                const prevWord = currentIndex > 0 ? currentWordsList[currentIndex - 1] : null;
+                const nextWord = currentIndex < currentWordsList.length - 1 ? currentWordsList[currentIndex + 1] : null;
+                
                 container.innerHTML = `
-                    <a href="index.html" class="home-link">← Retour à la liste</a>
                     <div class="word-card">
                         <div class="italian-word">${wordKey}</div>
                         <div class="french-translation">${word.french}</div>
+                        ${pronunciation ? `<div class="pronunciation">${pronunciation}</div>` : ''}
                         
                         <div class="button-group">
                             <button class="speak-btn" onclick="speakWord('${wordKey}')">
@@ -615,6 +774,18 @@
                         </div>
                         
                         <div id="feedback" class="feedback"></div>
+                        
+                        <!-- Navigation entre les mots de la leçon -->
+                        <div class="word-navigation" style="margin: 20px 0; display: flex; justify-content: space-between; align-items: center;">
+                            ${prevWord ? `<button onclick="displayWord('${prevWord}')" style="background: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">← ${prevWord}</button>` : '<div></div>'}
+                            
+                            <div style="text-align: center;">
+                                <div style="color: #666; font-size: 0.9em;">Mot ${currentIndex + 1} / ${currentWordsList.length}</div>
+                                <button onclick="displayRandomWord()" style="background: #FF9800; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-top: 5px;">🎲 Mot aléatoire</button>
+                            </div>
+                            
+                            ${nextWord ? `<button onclick="displayWord('${nextWord}')" style="background: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">${nextWord} →</button>` : '<div></div>'}
+                        </div>
                         
                         <div class="instructions">
                             <p>👂 1. Écoutez la prononciation</p>
@@ -669,6 +840,74 @@
             }
         }
 
+        // Variables globales pour la gestion des leçons
+        let currentLesson = 'S1.1';
+
+        // Fonction pour changer de leçon
+        function switchLesson(lessonId) {
+            currentLesson = lessonId;
+            
+            // Mettre à jour les boutons
+            document.querySelectorAll('.lesson-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Mettre à jour les informations de la leçon
+            updateLessonInfo(lessonId);
+            
+            // Effacer le conteneur et afficher le premier mot de la leçon
+            const container = document.getElementById('word-container');
+            container.innerHTML = '';
+            
+            if (lessonId === 'ALL') {
+                // Afficher un mot aléatoire de toutes les leçons
+                const allWords = Object.keys(words);
+                const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+                displayWord(randomWord);
+            } else {
+                // Afficher le premier mot de la leçon sélectionnée
+                const lessonWords = Object.keys(lessons[lessonId].words);
+                if (lessonWords.length > 0) {
+                    displayWord(lessonWords[0]);
+                }
+            }
+        }
+
+        // Fonction pour mettre à jour les informations de la leçon
+        function updateLessonInfo(lessonId) {
+            const infoElement = document.getElementById('lesson-info');
+            
+            if (lessonId === 'ALL') {
+                const totalWords = Object.keys(words).length;
+                infoElement.innerHTML = `
+                    <div class="lesson-title">📚 Tous les mots</div>
+                    <div class="lesson-description">Révision générale de toutes les leçons</div>
+                    <div class="word-count">${totalWords} mots au total</div>
+                `;
+            } else {
+                const lesson = lessons[lessonId];
+                const wordCount = Object.keys(lesson.words).length;
+                infoElement.innerHTML = `
+                    <div class="lesson-title">${lessonId} - ${lesson.title}</div>
+                    <div class="lesson-description">${lesson.description}</div>
+                    <div class="word-count">${wordCount} mots à apprendre</div>
+                `;
+            }
+        }
+
+        // Fonction modifiée pour afficher un mot aléatoire selon la leçon courante
+        function displayRandomWord() {
+            let wordKeys;
+            
+            if (currentLesson === 'ALL') {
+                wordKeys = Object.keys(words);
+            } else {
+                wordKeys = Object.keys(lessons[currentLesson].words);
+            }
+            
+            const randomKey = wordKeys[Math.floor(Math.random() * wordKeys.length)];
+            displayWord(randomKey);
+        }
+
         // Initialisation de l'application
         document.addEventListener('DOMContentLoaded', function() {
             // Forcer le chargement des voix
@@ -682,7 +921,26 @@
             }
             
             const targetWord = getWordFromURL();
-            displayWord(targetWord);
+            if (targetWord) {
+                // Si un mot spécifique est demandé via URL, l'afficher
+                displayWord(targetWord);
+                // Trouver dans quelle leçon se trouve le mot
+                for (const [lessonId, lesson] of Object.entries(lessons)) {
+                    if (lesson.words[targetWord]) {
+                        currentLesson = lessonId;
+                        // Mettre à jour l'interface
+                        document.querySelectorAll('.lesson-btn').forEach(btn => btn.classList.remove('active'));
+                        document.querySelector(`[onclick*="${lessonId}"]`).classList.add('active');
+                        updateLessonInfo(lessonId);
+                        break;
+                    }
+                }
+            } else {
+                // Sinon, afficher le premier mot de S1.1 par défaut
+                const firstWord = Object.keys(lessons['S1.1'].words)[0];
+                displayWord(firstWord);
+                updateLessonInfo('S1.1');
+            }
         });
 
         // Enregistrement du Service Worker pour PWA
